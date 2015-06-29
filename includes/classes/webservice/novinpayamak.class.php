@@ -1,7 +1,7 @@
 <?php
 	class novinpayamak extends WP_SMS {
 		private $wsdl_link = "http://www.novinpayamak.com/services/SMSBox/wsdl";
-		public $tariff = "http://www.smscall.ir/?page_id=63";
+		public $tariff = "http://www.novinpayamak.com";
 		public $unitrial = true;
 		public $unit;
 		public $flash = "enable";
@@ -10,7 +10,6 @@
 		public function __construct() {
 			parent::__construct();
 			$this->validateNumber = "09xxxxxxxx";
-			$this->has_key = true;
 			
 			ini_set("soap.wsdl_cache_enabled", "0");
 		}
@@ -20,7 +19,7 @@
 			
 			$result = $client->Send(
 				array(
-					'Auth'			=> array('number' => $this->from, 'pass' => $this->has_key),
+					'Auth'			=> array('number' => $this->from, 'pass' => $this->password),
 					'Recipients'	=> $this->to,
 					'Message'		=> array($this->msg),
 					'Flash'			=> $this->isflash
@@ -39,9 +38,9 @@
 		}
 
 		public function GetCredit() {
-			if(!$this->username && !$this->password) return;
-			$client = new SoapClient('http://www.novinpayamak.com/services/CISGate/wsdl', array('encoding' => 'UTF-8'));
-			$result = $client->CheckRealCredit(array('Auth' => array('email' => $this->username, 'password' => $this->password)));
+			$client = new SoapClient('http://www.novinpayamak.com/services/SMSBox/wsdl', array('encoding' => 'UTF-8'));
+			
+			$result = $client->CheckCredit(array('Auth' => array('number' => $this->from, 'pass' => $this->password)));
 			
 			if($result->Status != 1000)
 				return false;
